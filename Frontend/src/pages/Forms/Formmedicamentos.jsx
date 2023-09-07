@@ -1,167 +1,178 @@
-import React, { useState, useEffect } from 'react';
-import { Input } from '../../styles/agregar';
+import { useState, useEffect } from "react";
+import {
+  postMedicamentos,
+  updateMedicamentos,
+} from "../../services/ServiceMedicamento";
+import { getCategoria } from "../../services/ServiceCategoria";
+import { UseFech } from "../../hooks/useFech";
 
 const FormMedicamentos = ({
-    medicamentoActual,
-    setMedicamentoActual,
-    mostrarMedicamentos,
-    closeModal
+  getApi,
+  medicamentosactual,
+  setMedicamentosactual,
+  closeModal,
 }) => {
-    const [codigo, setCodigo] = useState('');
-    const [descripcion, setDescripcion] = useState('');
-    const [nombre, setNombre] = useState('');
-    const [fechaEntrada, setFechaEntrada] = useState('');
-    const [fechaVencimiento, setFechaVencimiento] = useState('');
-    const [stock, setStock] = useState('');
-    const [idCategorias, setIdCategorias] = useState('');
+  const [codigo, setCodigo] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [fecha_entrada, setFecha_entrada] = useState("");
+  const [fecha_ven, setFecha_ven] = useState("");
+  const [stock, setStock] = useState("");
+  const [id_categorias, setId_categorias] = useState("");
+  const { data: cat } = UseFech(getCategoria);
 
-    useEffect(() => {
-        if (Object.keys(medicamentoActual).length > 0) {
-            setCodigo(medicamentoActual.codigo);
-            setDescripcion(medicamentoActual.descripcion);
-            setNombre(medicamentoActual.nombre);
-            setFechaEntrada(medicamentoActual.fecha_entrada);
-            setFechaVencimiento(medicamentoActual.fecha_ven);
-            setStock(medicamentoActual.stock);
-            setIdCategorias(medicamentoActual.id_categorias);
-        } else {
-            setCodigo('');
-            setDescripcion('');
-            setNombre('');
-            setFechaEntrada('');
-            setFechaVencimiento('');
-            setStock('');
-            setIdCategorias('');
-        }
-    }, [medicamentoActual]);
-
-    const enviar = async (e) => {
-        e.preventDefault();
-
-        if (Object.keys(medicamentoActual).length > 0) {
-            // Función actualizar
-            const response = await fetch(`http://127.0.0.1:8000/api/Med/${medicamentoActual.id}`, {
-                method: "PUT",
-                headers: {
-                    accept: "application/json",
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify({
-                    id: medicamentoActual.id,
-                    codigo: codigo,
-                    descripcion: descripcion,
-                    nombre: nombre,
-                    fecha_entrada: fechaEntrada,
-                    fecha_ven: fechaVencimiento,
-                    stock: stock,
-                    id_categorias: idCategorias,
-                }),
-            });
-
-            if (response.ok) {
-                mostrarMedicamentos();
-                closeModal();
-            }
-        } else {
-            // Función agregar
-            const response = await fetch('http://127.0.0.1:8000/api/Med', {
-                method: 'POST',
-                headers: {
-                    accept: "application/json",
-                    "content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    codigo: codigo,
-                    descripcion: descripcion,
-                    nombre: nombre,
-                    fecha_entrada: fechaEntrada,
-                    fecha_ven: fechaVencimiento,
-                    stock: stock,
-                    id_categorias: idCategorias,
-                }),
-            });
-
-            if (response.ok) {
-                mostrarMedicamentos();
-                closeModal();
-            }
-        }
+  useEffect(() => {
+    if (Object.keys(medicamentosactual).length > 0) {
+      setCodigo(medicamentosactual.codigo);
+      setDescripcion(medicamentosactual.descripcion);
+      setNombre(medicamentosactual.nombre);
+      setFecha_entrada(medicamentosactual.fecha_entrada);
+      setFecha_ven(medicamentosactual.fecha_ven);
+      setStock(medicamentosactual.stock);
+    }
+    return () => {
+      setMedicamentosactual({});
     };
+  }, [medicamentosactual]);
 
-    return (
+  const updatepost = (e) => {
+    e.preventDefault();
+    if (Object.keys(medicamentosactual).length > 0) {
+      updateMedicamentos(
+        {
+          id: medicamentosactual.id,
+          codigo: codigo,
+          descripcion: descripcion,
+          nombre: nombre,
+          fecha_entrada: fecha_entrada,
+          fecha_ven: fecha_ven,
+          stock: stock,
+          id_categorias: setId_categorias,
+        },
+        () => {
+          setCodigo("");
+          setDescripcion("");
+          setNombre("");
+          setFecha_entrada("");
+          setFecha_ven("");
+          setStock("");
+          closeModal();
+          setMedicamentosactual({});
+          getApi();
+        }
+      );
+    } else {
+      postMedicamentos(
+        codigo,
+        descripcion,
+        fecha_entrada,
+        fecha_ven,
+        stock,
+        nombre,
+        id_categorias,
+        () => {
+          setCodigo("");
+          setDescripcion("");
+          setNombre("");
+          setFecha_entrada("");
+          setFecha_ven("");
+          setStock("");
+          getApi();
+          closeModal();
+        }
+      );
+    }
+  };
+
+  return (
+    <>
+      <form>
         <div>
-            <form>
-                <div>
-                    <div>
-                        <label htmlFor="codigo">Código</label>
-                        <Input
-                            type="text"
-                            id="codigo"
-                            value={codigo}
-                            onChange={(e) => setCodigo(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="descripcion">Descripción</label>
-                        <Input
-                            type="text"
-                            id="descripcion"
-                            value={descripcion}
-                            onChange={(e) => setDescripcion(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="nombre">Nombre</label>
-                        <Input
-                            type="text"
-                            id="nombre"
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="fechaEntrada">Fecha de Entrada</label>
-                        <Input
-                            type="text"
-                            id="fechaEntrada"
-                            value={fechaEntrada}
-                            onChange={(e) => setFechaEntrada(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="fechaVencimiento">Fecha de Vencimiento</label>
-                        <Input
-                            type="text"
-                            id="fechaVencimiento"
-                            value={fechaVencimiento}
-                            onChange={(e) => setFechaVencimiento(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="stock">Stock</label>
-                        <Input
-                            type="text"
-                            id="stock"
-                            value={stock}
-                            onChange={(e) => setStock(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="idCategorias">ID de Categorías</label>
-                        <Input
-                            type="text"
-                            id="idCategorias"
-                            value={idCategorias}
-                            onChange={(e) => setIdCategorias(e.target.value)}
-                        />
-                    </div>
-                </div>
-                <button onClick={enviar}>
-                    {Object.keys(medicamentoActual).length > 0 ? "Actualizar" : "Agregar"}
-                </button>
-            </form>
+          <label>codigo:</label>
+          <input
+            name="codigo"
+            placeholder="Ingrese un codigo"
+            type="text"
+            required
+            value={codigo}
+            onChange={(e) => setCodigo(e.target.value)}
+          />
         </div>
-    );
+        <div>
+          <label>descripcion:</label>
+          <input
+            name="descripcion"
+            placeholder="Ingrese un descripcion"
+            type="text"
+            required
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+          />
+        </div>
+        <div>
+          <label>nombre:</label>
+          <input
+            name="nombre"
+            placeholder="Ingrese un nombre"
+            type="text"
+            required
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
+        </div>
+        <div>
+          <label>fecha entrada:</label>
+          <input
+            name="fechaentrada"
+            placeholder="Ingrese un fechaentrada"
+            type="date"
+            required
+            value={fecha_entrada}
+            onChange={(e) => setFecha_entrada(e.target.value)}
+          />
+        </div>
+        <div>
+          <label>fechavencimiento:</label>
+          <input
+            name="fecha vencimiento"
+            placeholder="Ingrese un fechavencimiento"
+            type="date"
+            required
+            value={fecha_ven}
+            onChange={(e) => setFecha_ven(e.target.value)}
+          />
+        </div>
+        <div>
+          <label>stock:</label>
+          <input
+            name="stock"
+            placeholder="Ingrese un stock"
+            type="text"
+            required
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+          />
+        </div>
+        <div>
+          <label>categoria</label>
+          <select onChange={(e) => setId_categorias(e.target.value)}>
+            <option>seleccione el categoria</option>
+            {cat.map((v, i) => (
+              <option key={i} value={v.id}>
+                {v.id}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <button onClick={(e) => updatepost(e)}>
+            {Object.keys(medicamentosactual).length > 0 ? "Editar" : "Agregar"}
+          </button>
+        </div>
+      </form>
+    </>
+  );
 };
 
 export default FormMedicamentos;

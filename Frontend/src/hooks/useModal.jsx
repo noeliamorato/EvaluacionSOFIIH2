@@ -7,11 +7,11 @@ export const useModal = (titulo, contenido) => {
     setTitulo(titulo);
     setContenido(contenido);
     setOpenModal(true);
-  }
+  };
 
   const closeModal = () => {
     setOpenModal(false);
-  }
+  };
 
   return { openModal, closeModal };
-}
+};

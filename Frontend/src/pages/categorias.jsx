@@ -1,67 +1,35 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { useModal } from "../hooks/useModal";
-import FormCategorias from "./Form/FormCategorias";
-import { Padre } from "../styles/global";
+import { getCategoria } from "../services/ServiceCategoria";
+import { Catego } from "../styles/global";
+import FormCategorias from "./Forms/Formcategorias";
+import { useEffect } from "react";
+import { UseFech } from "../hooks/useFech";
 
 const Categorias = () => {
-  const [categoriaActual, setCategoriaActual] = useState({});
+  
+  const { getApi, data: categg } = UseFech(getCategoria);
+  const [categoriaactual, setCategoriaactual] = useState({});
+
   const { openModal, closeModal } = useModal(
-    Object.keys(categoriaActual).length > 0 ? "Editar categoría" : "Agregar Categoría",
+    Object.keys(categoriaactual).length > 0 ? "Editar Categoria" : "Agregar Categoria",
     <FormCategorias
-      categoriaActual={categoriaActual}
-      setCategoriaActual={setCategoriaActual}
-      mostrarCategorias={mostrarCategorias}
-      closeModal={() => {
-        closeModal();
-      }}
+      getApi={getApi}
+      categoriaactual={categoriaactual}
+      setCategoriaactual={setCategoriaactual}
+  
     />
   );
-
-  const [categorias, setCategorias] = useState([]);
-
-  async function mostrarCategorias() {
-    const response = await fetch("http://127.0.0.1:8000/api/Cat", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        accept: "application/json",
-      },
-    });
-    const respuesta = await response?.json();
-    setCategorias(respuesta);
-  }
-
-  async function eliminarCategoria(id) {
-    const response = await fetch("http://127.0.0.1:8000/api/Cat/" + id, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        accept: "application/json",
-      },
-    });
-    if (response.ok) {
-      mostrarCategorias();
-    }
-  }
-
-  function editarCategoria(id) {
-    const selectedCategoria = categorias.find((r) => r.id === id);
-    setCategoriaActual(selectedCategoria);
-  }
-
   useEffect(() => {
-    mostrarCategorias();
-  }, []);
-
+    if (Object.keys(categoriaactual).length > 0) {
+      openModal();
+    }
+  }, [categoriaactual]);
   return (
-    <Padre>
-      <div>
-        <h1>CATEGORÍAS</h1>
-        <p>Cantidad de registros {categorias.length}</p>
-        <button onClick={openModal}>Agregar</button>
-      </div>
-      <section>
-        <table>
+    <Catego>
+    <h2> Categoria</h2>
+    <button onClick={openModal} >agregar</button>
+    <table>
           <thead>
             <tr>
               <th>Nombre</th>
@@ -69,14 +37,14 @@ const Categorias = () => {
             </tr>
           </thead>
           <tbody>
-            {categorias.map((c) => (
+            {categg.map((c) => (
               <tr key={c.id}>
                 <td>{c.nombre}</td>
                 <td>
-                  <button onClick={() => editarCategoria(c.id)}>
-                    {Object.keys(categoriaActual).length > 0 ? "Actualizar" : "Editar"}
+                  <button >
+                    {Object.keys(categoriaactual).length > 0 ? "Actualizar" : "Editar"}
                   </button>
-                  <button onClick={() => eliminarCategoria(c.id)}>
+                  <button >
                     Eliminar
                   </button>
                 </td>
@@ -84,8 +52,8 @@ const Categorias = () => {
             ))}
           </tbody>
         </table>
-      </section>
-    </Padre>
+    </Catego>
+ 
   );
 };
 
