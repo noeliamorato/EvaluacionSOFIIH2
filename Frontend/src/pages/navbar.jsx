@@ -7,7 +7,7 @@ const Navbar = () => {
     <Container>
       <Nav>
         <Logo>
-          <Link to="/">Gestión de productos (medicamentos) </Link>
+          <Link to="/">Gestión de productos (medicamentos) del hospital  </Link>
         </Logo>
         <NavLinks>
           <NavLink to="/medicamentos">Medicamentos</NavLink>
